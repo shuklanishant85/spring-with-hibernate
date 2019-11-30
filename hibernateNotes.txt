@@ -1,0 +1,46 @@
+HIBERNATE:
+Hibernate is one of the most widely used Java ORM tool. 
+Object-relational mapping or ORM is the programming technique to map application domain model objects to the relational database tables.
+
+Hibernate eliminates all the boiler-plate code that comes with JDBC and takes care of managing resources, so we can focus on business use cases rather than making sure that database operations are not causing resource leaks.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+Core components of hibernate architecture:
+1. SessionFactory (org.hibernate.SessionFactory): SessionFactory is an immutable thread-safe cache of compiled mappings for a single database. We can get instance of org.hibernate.Session using SessionFactory.
+2. Session (org.hibernate.Session): Session is a single-threaded, short-lived object representing a conversation between the application and the persistent store. It wraps JDBC java.sql.Connection and works as a factory for org.hibernate.Transaction.
+3. Persistent objects: Persistent objects are short-lived, single threaded objects that contains persistent state and business function. These can be ordinary JavaBeans/POJOs. They are associated with exactly one org.hibernate.Session.
+4. Transient objects: Transient objects are persistent classes instances that are not currently associated with a org.hibernate.Session. They may have been instantiated by the application and not yet persisted, or they may have been instantiated by a closed org.hibernate.Session.
+5. Transaction (org.hibernate.Transaction): Transaction is a single-threaded, short-lived object used by the application to specify atomic units of work. It abstracts the application from the underlying JDBC or JTA transaction. A org.hibernate.Session might span multiple org.hibernate.Transaction in some cases.
+6. ConnectionProvider (org.hibernate.connection.ConnectionProvider): ConnectionProvider is a factory for JDBC connections. It provides abstraction between the application and underlying javax.sql.DataSource or java.sql.DriverManager. It is not exposed to application, but it can be extended by the developer.
+7. TransactionFactory (org.hibernate.TransactionFactory): A factory for org.hibernate.Transaction instances.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+When developing hibernate applications, we need to provide two set of configuration. 
+-> First set of configuration contains database specific properties that will be used to create Database connection and Session objects.(hibernate.cfg.xml)
+-> Second set of configurations contains mapping between model classes and database tables. (employee.hbm.xml)
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+hibernate-core artifact contains all the core hibernate classes, so we will get all the necessary features by including it in the project.
+ANNOTATIONS:
+-> @Entity annotation is used to mark a class as Entity bean that can be persisted by hibernate, since hibernate provides JPA implementation.
+-> @Table annotation is used to define the table mapping and unique constraints for the columns.
+-> @Id annotation is used to define the primary key for the table. 
+-> @GeneratedValue is used to define that the field will be auto generated and GenerationType.IDENTITY strategy is used so that the generated “id” value is 
+	mapped to the bean and can be retrieved in the java program.
+-> @Column is used to map the field with table column, we can also specify length, nullable and uniqueness for the bean properties.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Overall creating SessionFactory includes following steps:
+1. Creating Configuration object and configure it.
+2. Creating ServiceRegistry object and apply configuration settings.
+3. Use configuration.buildSessionFactory() by passing ServiceRegistry object as argument to get the SessionFactory object.
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+Steps in a hibernate transacion:
+1. get session:
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+2. start transaction:
+		session.beginTransaction();
+3. save the model object:
+		session.save(employee);
+4. commit transaction:
+		session.getTransaction().commit();
+5. terminate session factory to end thread:
+		HibernateUtil.getSessionFactory().close();
